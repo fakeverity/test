@@ -9,3 +9,5 @@ module.exports.getAllUsers = async () =>
 	return req_result.rows;
 
 };
+
+module.exports.

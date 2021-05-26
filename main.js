@@ -4,6 +4,7 @@
 	const http = require('http');
 	const express = require('express');
 	const WebSocket = require('ws');
+	const bodyparser = require('body-parser');
 	const {
 		Client
 	} = require('pg');
@@ -12,14 +13,16 @@
 
 /* PROJECT IMPORTS 
  * ==========================================================================*/
-	const conf  = require('./config');
-	const routes = require('./routes');
-	const pg_client = conf.pg_client;
+	const conf		   = require('./config');
+	const routes       = require('./routes');
 	const wsRouterInit = require('./routes/api/ws');
+
+
 
 /* OBJECT DECLARATIONS & DEFINITIONS
  * ==========================================================================*/
-	const app    = express();
+	const app       = express();
+	const pg_client = conf.pg_client;
 	
 
 
@@ -30,7 +33,11 @@
 		
 		await pg_client.connect();
 		
+		app.use(bodyparser.json());
 		app.use(routes);
+		app.set('view engine', 'pug');
+		app.set('views', './views');
+
 		const server = http.createServer(app);
 		const wss    = new WebSocket.Server({ server, path: '/api/ws' });
 		server.listen(conf.SERVER_PORT, conf.SERVER_HOST, (err) => 
@@ -41,7 +48,6 @@
 				conf.SERVER_PORT
 			);
 		});
-
 
 		wsRouterInit(wss);
 	}
@@ -81,3 +87,4 @@
 			process.exit();
         });
     }
+	

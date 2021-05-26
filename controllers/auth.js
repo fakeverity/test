@@ -1,23 +1,25 @@
 const conf = require('../config');
 const pg_client = conf.pg_client;
-const jwt = conf.jwt;
+const jwt = require('jsonwebtoken');
 
-module.exports.isAuthenticated = async function(user)
+module.exports.authUser= async function(user)
 {
-	let result = '';
-    await pg_client.query(
-        "SELECT * " + 
-        "FROM users" +
-        "WHERE user_name=" + user.name + " " +
-		"AND user_password=" + user.password 
-    ).then((res)=>
-	{
-		
-		console.log(res.rows[0]);
-		result = true;
-	});
+	try {
+		let result = await pg_client.query(
+			"SELECT * " + 
+			"FROM users " +
+			"WHERE user_name='" + user.name + "' " +
+			"AND user_password='" + user.password + "'"
+		);
 
-	return false
+		if (result.rows)
+		{
+			return jwt.sign({ name: user.name }, process.env.JWT_SECRET);
+		}
+
+		return null;
+	}
+	catch(e) { console.log(e); }
    // jwt.sign({ name: user.name }, process.env.JWT_SECRET);
           
 

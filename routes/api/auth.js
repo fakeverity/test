@@ -1,16 +1,16 @@
 const app = require('express');
-const rt  = app.Router();
-
+const router = app.Router();
 const auth_ctrl = require('./../../controllers/auth');
 
-rt.post('/auth', (req, res) =>
-{
-	const user = {
-		uname: req.query.name,
-		upass: req.query.password
-	};
 
-	const token = auth_ctrl.checkUser(user);
+
+/* AUTHENTICATE USER
+ * =================================*/
+router.post('/auth', async (req, res) =>
+{
+	const user = req.body;
+	const token = await auth_ctrl.authUser(user);
+	console.log(token)
 
 	if (token)
 		res.json({
@@ -20,6 +20,7 @@ rt.post('/auth', (req, res) =>
 		res.json({
 			"error": "wrong user name or password"
 		});
+	
 });
 
-module.exports = rt;
+module.exports = router;
