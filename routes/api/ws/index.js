@@ -12,7 +12,8 @@ module.exports = function(wss)
 {
     wss.on('connection', (ws1) =>
 	{
-		let userAuthenticated = 0;
+		ws1.authenticated = 0;
+		let sender_user_name = '';
 
 		ws1.on('message', async function(msg)
 		{
@@ -27,7 +28,7 @@ module.exports = function(wss)
 				// If message contains a token, validate and authenticate user
 				if (has_token)
 				{
-					if (!userAuthenticated)
+					if (!ws1.authenticated)
 					{
 						// Extract token from message
 						const extracted_token = has_token[0].split(' ')[1];
@@ -38,14 +39,15 @@ module.exports = function(wss)
 
 						if (token_valid)
 						{
-							userAuthenticated = 1;
+							ws1.authenticated = 1;
+							sender_user_name = token_valid.name;
 							ws1.send(JSON.stringify({
 								"authentication": "ok"
 							}));
 						}
 					}
 				}
-				else if (userAuthenticated)
+				else if (ws1.authenticated)
 				{
 					// Match "history xx", where xx - arbitrary number
 					const wants_history = user_message.match(/history\s\d+$/);
@@ -81,11 +83,16 @@ module.exports = function(wss)
 					}
 					else
 					{
-						crud_ctrlr.pushMessage(user_name, user_message);
+						crud_ctrlr.pushMessage(ws1.user_name, user_message);
 						wss.clients.forEach(client =>
 						{
-							if (client !== ws1)
-								client.send(user_message);
+							if (client !== ws1 && client.authenticated)
+							{
+								client.send(JSON.stringify({
+									"from": sender_user_name,
+									"message": user_message
+								}));
+							}
 						});
 					}
 				}

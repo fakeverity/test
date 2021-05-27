@@ -15,6 +15,7 @@ module.exports.pushMessage = async function(user_name, message)
 		"WHERE user_name='" + user_name + "'"
 	).then((result)=>
 	{
+		console.log(result.rows)
 		const user_id = result.rows[0].user_id;
 		const query_insert = 
 			"INSERT INTO messages(" +

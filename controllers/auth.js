@@ -20,11 +20,4 @@ module.exports.authUser= async function(user)
 		return null;
 	}
 	catch(e) { console.log(e); }
-   // jwt.sign({ name: user.name }, process.env.JWT_SECRET);
-          
-
-    //if (auth_successfull)
-     //   return { token: signed_token }
-    //else
-	//	return null;
 };

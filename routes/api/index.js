@@ -5,7 +5,7 @@ const auth_router = require('./auth');
 const getUsers = require('./../../controllers/crud').getAllUsers;
 
 rt.use(auth_router);
-rt.post('/userlist', async (req, res) =>
+rt.get('/userlist', async (req, res) =>
 {
 	const user_list = await getUsers();		
 
