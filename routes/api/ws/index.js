@@ -83,7 +83,7 @@ module.exports = function(wss)
 					}
 					else
 					{
-						crud_ctrlr.pushMessage(ws1.user_name, user_message);
+						crud_ctrlr.pushMessage(sender_user_name, user_message);
 						wss.clients.forEach(client =>
 						{
 							if (client !== ws1 && client.authenticated)
