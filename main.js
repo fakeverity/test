@@ -1,3 +1,8 @@
+/* ============================================================================
+ * FILE: /controllers/main.js
+ * ============================================================================ 
+ */
+
 
 /* UTIL IMPORTS
  * ==========================================================================*/
@@ -53,12 +58,11 @@
 	}
 	init();
 
+
 /* EVENTS
  * ==============================================*/
-	
     process.on('exit', disassemble);
     process.on('SIGINT', disassemble);
-
 
 
 /* AUXILIARY FUNCTIONS
@@ -68,13 +72,12 @@
      * ---------------------
      * > Executes shutting down actions
      * ---------------------
-	 *  @property { int } pendingExec - designates if function finished its job
+	 *  @property { int } pendingExec - shows if needed task are done execution
      */
     async function disassemble()
     {
 		/* If function has active instance
 		 * do not execute again */
-
 		if (this.pendingExec)
 			return;
 		this.pendingExec = 1;
@@ -87,4 +90,3 @@
 			process.exit();
         });
     }
-	

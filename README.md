@@ -28,7 +28,7 @@ $ > npx nodemon
 - ws://127.0.0.1:3000/api/ws - WebSocket endpoint
   - To authenticate connection send:
     ```JSON
-    { "message": "auth <token>" }
+    { "name": "User1", "message": "auth <token>" }
     ```
   - To obtain message history send:
     ```JSON

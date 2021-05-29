@@ -1,8 +1,22 @@
-const app = require('express');
-const rt = app.Router();
-const api_router = require('./api');
+/* ============================================================================
+ * FILE: /routes/index.js
+ * ============================================================================ 
+ */
 
-rt.use(function timeLog(req, res, next)
+
+/* UTIL IMPORTS
+ * ==========================================================================*/
+	const app = require('express');
+	const main_router = app.Router();
+
+
+/* PROJECT IMPORTS 
+ * ==========================================================================*/
+	const api_router = require('./api');
+
+
+/* Logs user requests to the server */
+main_router.use(function timeLog(req, res, next)
 {
 	console.log(
 		'Time: ', Date.now() ,
@@ -12,7 +26,10 @@ rt.use(function timeLog(req, res, next)
 	next();
 });
 
-rt.use('/api', api_router);
+
+/* ROUTERS ASSIGNMENT
+ * ==========================================================================*/
+	main_router.use('/api', api_router);
 
 
-module.exports = rt;
+module.exports = main_router;

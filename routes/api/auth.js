@@ -1,34 +1,48 @@
-const app = require('express');
-const router = app.Router();
-const auth_ctrl = require('./../../controllers/auth');
+/* ============================================================================
+ * FILE: /routes/api/auth.js
+ * ============================================================================ 
+ */ 
 
 
+/* UTIL IMPORTS
+ * ==========================================================================*/
+	const app = require('express');
+	const auth_router = app.Router();
 
-/* AUTHENTICATE USER
- * =================================*/
-router.post('/auth', async (req, res) =>
+
+/* PROJECT IMPORTS 
+ * ==========================================================================*/
+	const auth_controller = require('./../../controllers/auth');
+
+
+/* ENDPOINT: user authentication 
+ * -----------------------------*/
+auth_router.post('/auth', async (req, res) =>
 {
+	// parsed (using bodyparser) json object
 	const user = req.body;
 
 	if (user.name && user.password)
 	{
-		const token = await auth_ctrl.authUser(user);
+		const auth_token = await auth_controller.authUser(user);
 
-		if (token)
+		if (auth_token)
 			res.json({
-				"token": token
+				"token": auth_token
 			});
 		else
 			res.json({
 				"error": "wrong user name or password"
 			});
 
+		// prevent next statement from execution
 		return;
 	}
 	
 	res.json({
-		"error": "bad request body"
+		"error": "bad request body. Must be in json format."
 	});
 });
 
-module.exports = router;
+
+module.exports = auth_router;

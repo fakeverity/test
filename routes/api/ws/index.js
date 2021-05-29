@@ -1,18 +1,34 @@
-/* Path: /routes/api/ws/index.js ***/
-
-const auth_ctrlr = require('../../../controllers/auth');
-const crud_ctrlr = require('../../../controllers/crud');
-const jwt = require('jsonwebtoken');
-
-/* Function
- * -------------------
- * @param { WebSocket.Server } wss - websocket server
+/* ============================================================================
+ * FILE: /routes/api/ws/index.js
+ * ============================================================================ 
  */
-module.exports = function(wss)
+
+
+/* UTIL IMPORTS
+ * ==========================================================================*/
+	const jwt = require('jsonwebtoken');
+
+
+/* PROJECT IMPORTS
+ * ==========================================================================*/
+	const auth_controller = require('../../../controllers/auth');
+	const crud_controller = require('../../../controllers/crud');
+
+
+/* Function: webSocketRequestHandler
+ * -------------------------------
+ * @param { WebSocket.Server } wss - WebSocket server
+ * -------------------------------
+ */
+module.exports = function webSocketCommunicationProvider(wss)
 {
     wss.on('connection', (ws1) =>
 	{
+		ws1.send('{ "connection": "ok" }');
+
+		// reflects the state of currently connected client
 		ws1.authenticated = 0;
+		// this is set per client connection
 		let sender_user_name = '';
 
 		ws1.on('message', async function(msg)
@@ -32,15 +48,13 @@ module.exports = function(wss)
 					{
 						// Extract token from message
 						const extracted_token = has_token[0].split(' ')[1];
-						const token_valid = jwt.verify(
-							extracted_token,
-							process.env.JWT_SECRET
-						);
+						const decoded_token =
+							auth_controller.verifyToken(extracted_token);
 
-						if (token_valid)
+						if (decoded_token.user_name == user_name)
 						{
 							ws1.authenticated = 1;
-							sender_user_name = token_valid.name;
+							sender_user_name = user_name;
 							ws1.send(JSON.stringify({
 								"authentication": "ok"
 							}));
@@ -58,7 +72,7 @@ module.exports = function(wss)
 						
 						new Promise((resolve, reject) => 
 						{
-							const result = crud_ctrlr
+							const result = crud_controller
 								.getLastMessages(history_count);
 
 							if (result)
@@ -67,7 +81,6 @@ module.exports = function(wss)
 								reject("Failed to get message history");
 						}).then((result)=>
 						{
-						
 							ws1.send(JSON.stringify({
 								"result": result
 							}));
@@ -81,9 +94,11 @@ module.exports = function(wss)
 						});*/
 
 					}
+					// When a client just sends a message
 					else
 					{
-						crud_ctrlr.pushMessage(sender_user_name, user_message);
+						crud_controller
+							.pushMessage(sender_user_name, user_message);
 						wss.clients.forEach(client =>
 						{
 							if (client !== ws1 && client.authenticated)
@@ -95,22 +110,21 @@ module.exports = function(wss)
 							}
 						});
 					}
-				}
-				// User is not authenticated
+				} // else if (ws1.authenticated)
+				// Client is not authenticated
 				else {
 					ws1.send(JSON.stringify({
 						"error": "This user is not authenticated"
 					}));
 					ws1.close();
 				}
-			}
+			} 
 			catch(e) {
 				ws1.send(JSON.stringify({
 					"error": "Failed to parse your message. Try again"
 				}));
 				console.log(e);
 			}
-		});
-		ws1.send('{ "connection": "ok" }');
-	});
-};
+		}); // websocket.on('message')
+	}); // websocket.on('connection')
+}; // WebSocketCommunicationProvider
